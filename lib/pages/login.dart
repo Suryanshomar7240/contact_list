@@ -39,12 +39,13 @@ class _LoginPageState extends ConsumerState<LoginPage> {
             body: Center(
           child: loading
               ? const CircularProgressIndicator(
-                  valueColor: AlwaysStoppedAnimation<Color>(Colors.blue))
+                  valueColor: AlwaysStoppedAnimation<Color>(
+                      Color.fromARGB(236, 255, 26, 26)))
               : Container(
                   margin: const EdgeInsets.symmetric(horizontal: 30),
                   child: SingleChildScrollView(
                     child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.end,
                       children: [
                         const Center(
                             child: Text("Login!",
@@ -116,7 +117,8 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                                     borderRadius: BorderRadius.circular(10),
                                     boxShadow: const [
                                       BoxShadow(
-                                          color:  Color.fromARGB(169, 255, 160, 160),
+                                          color: Color.fromARGB(
+                                              169, 255, 160, 160),
                                           offset: Offset(
                                             10.0,
                                             12.0,
@@ -197,7 +199,9 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                         ),
                         const SizedBox(height: 20),
                         InkWell(
-                          onTap: _auth.registerWithGoogle,
+                          onTap: () async {
+                            print((await _auth.registerWithFacebook()).user.toString());
+                          },
                           child: Container(
                             width: MediaQuery.of(context).size.width * 0.65,
                             padding: const EdgeInsets.all(12),
@@ -230,7 +234,8 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                             ),
                           ),
                         ),
-                        const SizedBox(height: 20),
+                        SizedBox(
+                            height: MediaQuery.of(context).size.height / 10),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
@@ -240,10 +245,13 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                                   Navigator.of(context)
                                       .popAndPushNamed('/signup');
                                 },
-                                child: const Text("Register",
-                                    style: TextStyle(
-                                        decoration: TextDecoration.underline,
-                                        fontSize: 14)))
+                                child: const Padding(
+                                  padding: EdgeInsets.all(10),
+                                  child: Text("Register",
+                                      style: TextStyle(
+                                          decoration: TextDecoration.underline,
+                                          fontSize: 14)),
+                                ))
                           ],
                         )
                       ],

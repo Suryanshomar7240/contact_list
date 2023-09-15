@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:math';
 import 'package:contract_list/actions/database.dart';
 import 'package:contract_list/actions/firebase_storage.dart';
 import 'package:contract_list/actions/providers.dart';
@@ -15,18 +16,19 @@ extension StringExtension on String {
   }
 }
 
-class AddContact extends StatefulHookConsumerWidget {
-  const AddContact({super.key});
+class EditContact extends StatefulHookConsumerWidget {
+  final Contact contact;
+  const EditContact({super.key, required this.contact});
 
   @override
-  ConsumerState<AddContact> createState() => _AddContactState();
+  ConsumerState<EditContact> createState() => _EditContactState();
 }
 
-class _AddContactState extends ConsumerState<AddContact> {
+class _EditContactState extends ConsumerState<EditContact> {
   XFile? imageFile;
-  String dropdownValue = 'Mobile';
-  Contact contact = Contact();
+  String dropdownValue = "";
   String phoneNumber = "";
+  late Contact changedContact;
   List<String> dropdownItems = [
     'Mobile',
     'Work',
@@ -37,8 +39,25 @@ class _AddContactState extends ConsumerState<AddContact> {
     'Pager',
     'Other'
   ];
-  bool loading = false;
-  String error = "";
+  @override
+  void initState() {
+    changedContact = Contact(
+      firstName: widget.contact.firstName,
+      lastName: widget.contact.lastName,
+      companyName: widget.contact.companyName,
+      image: widget.contact.image,
+      phone: widget.contact.phone,
+      email: widget.contact.email,
+      docId: widget.contact.docId,
+    );
+    phoneNumber =
+        changedContact.phone == null ? "" : changedContact.phone!.phoneNumber;
+    super.initState();
+    dropdownValue = widget.contact.phone == null
+        ? 'Mobile'
+        : widget.contact.phone!.phoneType;
+  }
+
   get kBackgroundColor => null;
 
   void _openGallery(BuildContext context) async {
@@ -98,6 +117,7 @@ class _AddContactState extends ConsumerState<AddContact> {
     return url;
   }
 
+  final random = Random();
   Widget _setImageView() {
     if (imageFile != null) {
       return Container(
@@ -106,20 +126,35 @@ class _AddContactState extends ConsumerState<AddContact> {
               child: SizedBox.fromSize(
             size: const Size.fromRadius(70),
             child: Image.file(File(imageFile!.path),
-                width: 200, height: 200, fit: BoxFit.fill),
+                width: 100, height: 100, fit: BoxFit.cover),
           )));
-    } else {
+    } else if (widget.contact.image != null) {
       return Container(
           margin: const EdgeInsets.symmetric(horizontal: 50),
           child: ClipOval(
-            child: SizedBox.fromSize(
-              size: const Size.fromRadius(70),
-              child: Image.asset('assets/avatar.png',
-                  width: 200, height: 200, fit: BoxFit.fill),
-            ),
-          ));
+              child: SizedBox.fromSize(
+            size: const Size.fromRadius(70),
+            child: Image.network(widget.contact.image!,
+                width: 100, height: 100, fit: BoxFit.cover),
+          )));
+    } else {
+      return ClipOval(
+          child: SizedBox.fromSize(
+        size: const Size.fromRadius(70),
+        child: Container(
+            color: Color.fromARGB(250, random.nextInt(255), random.nextInt(255),
+                random.nextInt(255)),
+            child: Center(
+                child: Text(
+              widget.contact.firstName![0],
+              style: const TextStyle(fontSize: 80),
+            ))),
+      ));
     }
   }
+
+  bool loading = false;
+  String error = "";
 
   @override
   Widget build(BuildContext context) {
@@ -132,7 +167,8 @@ class _AddContactState extends ConsumerState<AddContact> {
           FocusManager.instance.primaryFocus?.unfocus();
         }
       },
-      child: SafeArea(
+      child: Container(
+        height: MediaQuery.of(context).size.height * 0.9,
         child: Scaffold(
             body: SingleChildScrollView(
           child: Column(
@@ -150,7 +186,7 @@ class _AddContactState extends ConsumerState<AddContact> {
                             child: const Text("Cancel",
                                 style: TextStyle(
                                     fontSize: 16, color: Colors.blue))),
-                        const Text("New Contact",
+                        const Text("Edit Contact",
                             style: TextStyle(
                                 fontSize: 16, fontWeight: FontWeight.w500)),
                         InkWell(
@@ -158,22 +194,23 @@ class _AddContactState extends ConsumerState<AddContact> {
                               setState(() {
                                 loading = true;
                               });
-                              if (contact.firstName == "" ||
-                                  contact.firstName == null) {
+                              if (changedContact.firstName == "" ||
+                                  changedContact.firstName == null) {
                                 setState(() {
-                                  error = "Enter the first name";
+                                  error = "First name can't be null";
                                   loading = false;
                                 });
                                 return;
                               }
-                              contact.image = await _uploadFile();
-                              contact.phone = Phoneclass(
+                              if(imageFile!=null){
+                                changedContact.image = await _uploadFile();}
+                              changedContact.phone = Phoneclass(
                                   phoneType: dropdownValue,
                                   phoneNumber: phoneNumber);
-                              contact.firstName =
-                                  contact.firstName?.capitalize();
-                              await DatabaseManager()
-                                  .addContact(userState.uid!, contact);
+                              changedContact.firstName =
+                                  changedContact.firstName?.capitalize();
+                              await DatabaseManager().updateContact(
+                                  userState.uid!, changedContact);
                               Navigator.of(context).pop();
                             },
                             child: const Text("Done",
@@ -194,7 +231,7 @@ class _AddContactState extends ConsumerState<AddContact> {
                             onTap: () {
                               _showSelectionDialog(context);
                             },
-                            child: const Text("Add photo",
+                            child: const Text("Change photo",
                                 style: TextStyle(
                                   fontSize: 16,
                                   color: Colors.blue,
@@ -214,8 +251,10 @@ class _AddContactState extends ConsumerState<AddContact> {
                               width: MediaQuery.of(context).size.width * 0.7,
                               child: TextField(
                                 onChanged: (val) {
-                                  contact.firstName = val;
+                                  changedContact.firstName = val;
                                 },
+                                controller: TextEditingController(
+                                    text: changedContact.firstName ?? ""),
                                 decoration: const InputDecoration(
                                     hintText: 'First Name',
                                     contentPadding:
@@ -233,8 +272,10 @@ class _AddContactState extends ConsumerState<AddContact> {
                               width: MediaQuery.of(context).size.width * 0.7,
                               child: TextField(
                                 onChanged: (val) {
-                                  contact.lastName = val;
+                                  changedContact.lastName = val;
                                 },
+                                controller: TextEditingController(
+                                    text: changedContact.lastName ?? ""),
                                 decoration: const InputDecoration(
                                     hintText: 'Last Name',
                                     contentPadding:
@@ -255,8 +296,10 @@ class _AddContactState extends ConsumerState<AddContact> {
                                 width: MediaQuery.of(context).size.width * 0.7,
                                 child: TextField(
                                   onChanged: (val) {
-                                    contact.companyName = val;
+                                    changedContact.companyName = val;
                                   },
+                                  controller: TextEditingController(
+                                      text: changedContact.companyName ?? ""),
                                   decoration: const InputDecoration(
                                       hintText: 'Company Name',
                                       contentPadding:
@@ -298,6 +341,8 @@ class _AddContactState extends ConsumerState<AddContact> {
                                 onChanged: (val) {
                                   phoneNumber = val;
                                 },
+                                controller:
+                                    TextEditingController(text: phoneNumber),
                                 decoration: const InputDecoration(
                                     hintText: 'Phone Number',
                                     contentPadding:
@@ -319,8 +364,10 @@ class _AddContactState extends ConsumerState<AddContact> {
                                       MediaQuery.of(context).size.width * 0.7,
                                   child: TextField(
                                     onChanged: (val) {
-                                      contact.email = val;
+                                      changedContact.email = val;
                                     },
+                                    controller: TextEditingController(
+                                        text: changedContact.email ?? ""),
                                     decoration: const InputDecoration(
                                         hintText: 'Email',
                                         contentPadding:

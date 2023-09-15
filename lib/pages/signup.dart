@@ -42,12 +42,13 @@ class _SignupPageState extends ConsumerState<SignupPage> {
             body: Center(
                 child: loading
                     ? const CircularProgressIndicator(
-                        valueColor: AlwaysStoppedAnimation<Color>(Colors.blue))
+                        valueColor: AlwaysStoppedAnimation<Color>(
+                            Color.fromARGB(236, 255, 26, 26)))
                     : Container(
                         margin: const EdgeInsets.symmetric(horizontal: 30),
                         child: SingleChildScrollView(
                             child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
+                                mainAxisAlignment: MainAxisAlignment.end,
                                 children: [
                               const Center(
                                   child: Text("Register!",
@@ -144,13 +145,14 @@ class _SignupPageState extends ConsumerState<SignupPage> {
                                           0.65,
                                       padding: const EdgeInsets.all(12),
                                       decoration: BoxDecoration(
-                                        color:Color.fromARGB(236, 255, 26, 26),
-                                          
+                                          color:
+                                              Color.fromARGB(236, 255, 26, 26),
                                           borderRadius:
                                               BorderRadius.circular(10),
                                           boxShadow: const [
                                             BoxShadow(
-                                                color: Color.fromARGB(169, 255, 160, 160),
+                                                color: Color.fromARGB(
+                                                    169, 255, 160, 160),
                                                 offset: Offset(
                                                   10.0,
                                                   12.0,
@@ -270,7 +272,9 @@ class _SignupPageState extends ConsumerState<SignupPage> {
                                   ),
                                 ),
                               ),
-                              const SizedBox(height: 20),
+                              SizedBox(
+                                  height:
+                                      MediaQuery.of(context).size.height / 15),
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
@@ -280,11 +284,14 @@ class _SignupPageState extends ConsumerState<SignupPage> {
                                         Navigator.of(context)
                                             .popAndPushNamed('/login');
                                       },
-                                      child: const Text("Login",
-                                          style: TextStyle(
-                                              decoration:
-                                                  TextDecoration.underline,
-                                              fontSize: 14)))
+                                      child: const Padding(
+                                        padding: EdgeInsets.all(10),
+                                        child: Text("Login",
+                                            style: TextStyle(
+                                                decoration:
+                                                    TextDecoration.underline,
+                                                fontSize: 14)),
+                                      ))
                                 ],
                               )
                             ]))))),

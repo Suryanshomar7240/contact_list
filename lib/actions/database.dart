@@ -29,9 +29,8 @@ class DatabaseManager {
   }
 
   Future getUser(String uid) async {
-    await userModel.doc(uid).get().then((querySnapshot) {
-      return querySnapshot;
-    });
+    final data = await userModel.doc(uid).get();
+    return data;
   }
 
   List<Contact> _contactSnapshot(QuerySnapshot snap) {
@@ -42,6 +41,7 @@ class DatabaseManager {
     return userModel
         .doc(uid)
         .collection('contacts')
+        .orderBy('first_name')
         .snapshots()
         .map(_contactSnapshot);
   }

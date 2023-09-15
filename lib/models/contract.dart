@@ -36,6 +36,7 @@ Contact contactfromJson(DocumentSnapshot data) {
       lastName: data.get('last_name'),
       companyName: data.get('company_name'),
       image: data.get('image'),
+      email: data.get('email'),
       phone: phoneClassfromJson(data.get('phone')));
 }
 

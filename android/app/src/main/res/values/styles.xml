@@ -17,6 +17,7 @@
 <string name="app_name">Contact</string>
 <string name="facebook_app_id">275801208577804</string>
 <string name="fb_login_protocol_scheme">fb275801208577804</string>
+<string name="facebook_client_token">b08806cc6164916e68b6e17a0136ddd3</string>
 
 
     <style name="NormalTheme" parent="@android:style/Theme.Light.NoTitleBar">

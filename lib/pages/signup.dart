@@ -189,6 +189,7 @@ class _SignupPageState extends ConsumerState<SignupPage> {
                                   if (response.status == 404) {
                                     setState(() {
                                       error = response.message;
+                                      loading = false;
                                     });
                                     return;
                                   }
@@ -236,7 +237,26 @@ class _SignupPageState extends ConsumerState<SignupPage> {
                               ),
                               const SizedBox(height: 20),
                               InkWell(
-                                onTap: _auth.registerWithGoogle,
+                                onTap: () async {
+                                  setState(() {
+                                    loading = true;
+                                  });
+                                  AuthResponse response =
+                                      await _auth.registerWithFacebook();
+                                  if (response.status == 404) {
+                                    setState(() {
+                                      error = response.message;
+                                      loading = false;
+                                    });
+                                    return;
+                                  }
+                                  userState.updateUser(response.user!);
+                                  Navigator.of(context)
+                                      .popAndPushNamed('/contact_list');
+                                  setState(() {
+                                    loading = true;
+                                  });
+                                },
                                 child: Container(
                                   width:
                                       MediaQuery.of(context).size.width * 0.65,

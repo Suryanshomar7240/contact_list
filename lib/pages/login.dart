@@ -97,6 +97,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                                   if (response.status == 404) {
                                     setState(() {
                                       error = response.message;
+                                      loading = false;
                                     });
                                     return;
                                   }
@@ -155,6 +156,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                             if (response.status == 404) {
                               setState(() {
                                 error = response.message;
+                                loading = false;
                               });
                               return;
                             }
@@ -200,7 +202,24 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                         const SizedBox(height: 20),
                         InkWell(
                           onTap: () async {
-                            print((await _auth.registerWithFacebook()).user.toString());
+                          setState(() {
+                              loading = true;
+                            });
+                            AuthResponse response =
+                                await _auth.registerWithFacebook();
+                            if (response.status == 404) {
+                              setState(() {
+                                error = response.message;
+                                loading = false;
+                              });
+                              return;
+                            }
+                            userState.updateUser(response.user!);
+                            Navigator.of(context)
+                                .popAndPushNamed('/contact_list');
+                            setState(() {
+                              loading = false;
+                            });
                           },
                           child: Container(
                             width: MediaQuery.of(context).size.width * 0.65,

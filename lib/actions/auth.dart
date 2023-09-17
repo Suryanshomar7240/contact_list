@@ -62,6 +62,8 @@ class AuthService {
               uid: userCredentail.user!.uid));
     } on FirebaseAuthException catch (e) {
       return AuthResponse(status: 404, message: e.message!);
+    } catch (e) {
+      return AuthResponse(status: 404, message: e.toString());
     }
   }
 
